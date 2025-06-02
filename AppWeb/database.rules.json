@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "sensores": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "361688945081",
+    "firebase_url": "https://hospital-esp32-1-default-rtdb.firebaseio.com",
+    "project_id": "hospital-esp32-1",
+    "storage_bucket": "hospital-esp32-1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:361688945081:android:1bbcf679e8cb1b77a4a668",
+        "android_client_info": {
+          "package_name": "com.achs.fridgeclimate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFcVq5zSEcAQCXBjJLRlcCuB1WOSusE98"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

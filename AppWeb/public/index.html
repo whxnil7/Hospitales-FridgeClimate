@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Monitor de Temperatura y Humedad</title>
+    <link rel="stylesheet" href="style.css" />
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+</head>
+<body>
+
+<div class="topnav">
+    <h1>Sensores de Temperatura y Humedad</h1>
+  </div>
+
+  <div id="authentication-bar">
+    <div id="login-form" class="form-elements-container">
+      <h2 style="color:#049faa; margin-bottom: 15px;">Iniciar sesión</h2>
+      <input type="email" id="email" placeholder="Correo electrónico" required autocomplete="username" />
+      <input type="password" id="password" placeholder="Contraseña" required autocomplete="current-password" />
+      <button id="login-btn">Entrar</button>
+      <p id="login-error"></p>
+    </div>
+
+    <div id="user-details" style="display:none; margin-top: 10px; text-align:center;">
+      <p>Bienvenido, <strong><span id="user-email"></span></strong></p>
+        <div style="margin: 10px 0;">
+        <label for="refrigerador-select"><strong>Seleccionar Refrigerador:</strong></label>
+        <select id="refrigerador-select" style="padding: 5px; margin-left: 10px;">
+          <option value="1">Refrigerador 1</option>
+          <option value="2">Refrigerador 2</option>
+          <option value="3">Refrigerador 3</option>
+          <option value="4">Refrigerador 4</option>
+        </select>
+      </div>
+      <button id="logout-btn">Cerrar sesión</button>
+    </div>
+  </div>
+
+<div class="content" id="data-content" style="display:none;">
+    <div class="cards">
+        <div class="card">
+            <h3>🌡️Temperatura</h3>
+            <p class="reading" id="temp-reading">-- °C</p>
+        </div>
+        <div class="card">
+            <h3>💧Humedad</h3>
+            <p class="reading" id="hum-reading">-- %</p>
+        </div>
+    </div>
+    <div style="max-width:800px; margin: 20px auto; text-align:center;">
+    <button id="download-excel-btn" style="padding:10px 20px; font-size:1.1rem; margin-bottom:15px;">Descargar Excel</button>
+    <canvas id="tempChart" width="600" height="300"></canvas>
+    <canvas id="humChart" width="600" height="300"></canvas>
+  </div>
+</div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+    // Configuración Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDU-v8CcaXQIm8Zj14sQGrNJ7I98DxAGOU",
+      authDomain: "hospital-esp32-1.firebaseapp.com",
+      databaseURL: "https://hospital-esp32-1-default-rtdb.firebaseio.com",
+      projectId: "hospital-esp32-1",
+      storageBucket: "hospital-esp32-1.firebasestorage.app",
+      messagingSenderId: "361688945081",
+      appId: "1:361688945081:web:cf6b86ee6dffe359a4a668",
+      measurementId: "G-2L3FVTKQPJ"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const loginForm = document.getElementById('login-form');
+    const userDetails = document.getElementById('user-details');
+    const userEmailSpan = document.getElementById('user-email');
+    const loginError = document.getElementById('login-error');
+    const dataContent = document.getElementById('data-content');
+
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    loginBtn.addEventListener('click', () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+
+        loginError.textContent = '';
+
+        if (!email || !password) {
+            loginError.textContent = 'Por favor, ingrese correo y contraseña.';
+            return;
+        }
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                // Inicio de sesión exitoso
+            })
+            .catch(error => {
+                loginError.textContent = error.message;
+            });
+    });
+
+    logoutBtn.addEventListener('click', () => {
+        auth.signOut();
+    });
+
+    // Escuchar el estado de autenticación
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Usuario autenticado
+            loginForm.style.display = 'none';
+            userDetails.style.display = 'block';
+            userEmailSpan.textContent = user.email;
+            dataContent.style.display = 'block';
+
+            // Escuchar datos en tiempo real de temperatura y humedad
+            // Ajusta estas rutas según tu base de datos Firebase
+            const tempRef = db.ref('sensores/1/temperatura');
+            const humRef = db.ref('sensores/1/humedad');
+
+            tempRef.on('value', snapshot => {
+                const temp = snapshot.val();
+                document.getElementById('temp-reading').textContent = temp !== null ? `${temp} °C` : '-- °C';
+            });
+
+            humRef.on('value', snapshot => {
+                const hum = snapshot.val();
+                document.getElementById('hum-reading').textContent = hum !== null ? `${hum} %` : '-- %';
+            });
+
+        } else {
+            // Usuario no autenticado
+            loginForm.style.display = 'block';
+            userDetails.style.display = 'none';
+            dataContent.style.display = 'none';
+            loginError.textContent = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+    });
+    const labels = [];
+    const dataTemp = [];
+    const dataHum = [];
+
+        // Inicializar gráfico
+        const tempctx = document.getElementById('tempChart').getContext('2d');
+        const humctx = document.getElementById('humChart').getContext('2d');
+
+
+        const tempChart = new Chart(tempctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperatura (°C)',
+                    data: dataTemp,
+                    borderColor: 'rgba(255, 99, 71, 1)',
+                    backgroundColor: 'rgba(255, 99, 71, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hora'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Temperatura (°C)'
+                        }
+                    }
+                }
+            }
+        });
+        const humChart = new Chart(humctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Humedad (%)',
+                    data: dataHum,
+                    borderColor: 'rgba(4, 159, 170, 1)',
+                    backgroundColor: 'rgba(4, 159, 170, 0.2)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hora'
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Humedad (%)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Función para obtener hora actual en HH:mm
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Obtener referencias Firebase (ajusta según tu estructura)
+        const tempRef = db.ref('sensores/1/temperatura');
+        const humRef = db.ref('sensores/1/humedad');
+
+        // Escuchar cambios de temperatura y actualizar gráfico y lectura
+        function updateCharts(temp, hum, time) {
+            // Mantener solo últimos 20 puntos
+            if(labels.length >= 20){
+                labels.shift();
+                dataTemp.shift();
+                dataHum.shift();
+            }
+
+            // Agregar nuevos datos
+            labels.push(time);
+            
+            // Temperatura (si existe)
+            if(temp !== null) {
+                dataTemp.push(temp);
+            }
+            
+            // Humedad (si existe)
+            if(hum !== null) {
+                dataHum.push(hum);
+            }
+            
+            // Actualizar ambos gráficos
+            tempChart.update();
+            humChart.update();
+        }
+
+        // Escuchar cambios de temperatura
+        tempRef.on('value', snapshot => {
+            const temp = snapshot.val();
+            document.getElementById('temp-reading').textContent = temp !== null ? `${temp.toFixed(2)} °C` : '-- °C';
+            
+            // Obtener humedad actual para mantener sincronizados los datos
+            humRef.once('value').then(humSnapshot => {
+                const hum = humSnapshot.val();
+                const time = getCurrentTime();
+                updateCharts(temp, hum, time);
+            });
+        });
+
+        // Escuchar cambios de humedad
+        humRef.on('value', snapshot => {
+            const hum = snapshot.val();
+            document.getElementById('hum-reading').textContent = hum !== null ? `${hum.toFixed(2)} %` : '-- %';
+            
+            // Obtener temperatura actual para mantener sincronizados los datos
+            tempRef.once('value').then(tempSnapshot => {
+                const temp = tempSnapshot.val();
+                const time = getCurrentTime();
+                updateCharts(temp, hum, time);
+            });
+        });
+
+        // Mostrar datos y ocultar loader
+        Promise.all([tempRef.once('value'), humRef.once('value')]).then(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('data-content').style.display = 'block';
+        }).catch(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+        });
+
+</script>
+
+</body>
+</html>

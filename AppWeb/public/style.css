@@ -1,0 +1,180 @@
+html {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: inline-block;
+    text-align: center;
+}
+
+p {
+    font-size: 1.2rem;
+}
+
+body {
+    margin: 0;
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: #049faa;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+}
+
+#authentication-bar {
+  background-color: #f4f9f9;
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+}
+
+
+#user-details{
+    color: cadetblue;
+}
+
+.content {
+    padding: 20px;
+}
+
+.card {
+    background-color: white;
+    box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+    padding: 5%;
+}
+
+.cards {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.reading {
+    font-size: 1.4rem;
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+canvas {
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+button#login-btn, button#logout-btn {
+  width: 100%;
+  padding: 15px 0;
+  margin-top: 18px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 6px 15px rgba(4, 159, 170, 0.3);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button#login-btn:hover {
+  background-color: #027b7e;
+  box-shadow: 0 8px 20px rgba(2, 123, 126, 0.5);
+  cursor: pointer;
+}
+
+button#logout-btn {
+  background-color: #e74c3c;
+  box-shadow: 0 6px 15px rgba(231, 76, 60, 0.3);
+}
+
+button#logout-btn:hover {
+  background-color: #c0392b;
+  box-shadow: 0 8px 20px rgba(192, 57, 43, 0.5);
+  cursor: pointer;
+}
+
+.form-elements-container {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(4, 159, 170, 0.25);
+  width: 320px;
+  box-sizing: border-box;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+input[type=email], input[type=password] {
+  width: 100%;
+  padding: 14px 18px;
+  margin: 12px 0;
+  border: 1.8px solid #049faa;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+input[type=email]:focus, input[type=password]:focus {
+  border-color: #027b7e;
+  outline: none;
+  box-shadow: 0 0 8px rgba(4, 159, 170, 0.4);
+}
+
+#login-error {
+  font-size: 0.9rem;
+  min-height: 20px;
+}
+
+.time-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    justify-content: center;
+    max-width: 800px;
+}
+
+.time-controls div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-controls label {
+    font-weight: bold;
+    color: #049faa;
+}
+
+.time-controls input[type="datetime-local"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.time-controls button {
+    padding: 8px 15px;
+    background-color: #049faa;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.time-controls button:hover {
+    opacity: 0.9;
+}
